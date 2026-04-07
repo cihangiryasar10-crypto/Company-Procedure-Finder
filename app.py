@@ -191,9 +191,7 @@ def transcribe_audio_bytes(audio_bytes: bytes, model_name: str) -> str:
 
 def build_search_index(chunks: List[Chunk]):
     vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2))
-    matrix = vectorizer.fit_transform(
-        [f"{chunk.heading}\n{chunk.text}" for chunk in chunks]
-    )
+    matrix = vectorizer.fit_transform([f"{chunk.heading}\n{chunk.text}" for chunk in chunks])
     return vectorizer, matrix
 
 
@@ -229,7 +227,7 @@ def ensure_session_defaults() -> None:
 def index_manuals(uploaded_files) -> None:
     chunks = load_document_chunks(uploaded_files)
     if not chunks:
-        raise ValueError("Yüklenen dosyalardan okunabilir metin çıkarılamadı.")
+        raise ValueError("Yuklenen dosyalardan okunabilir metin cikarilamadi.")
 
     vectorizer, matrix = build_search_index(chunks)
     st.session_state.manual_fingerprint = fingerprint_files(uploaded_files)
@@ -242,9 +240,145 @@ def main() -> None:
     st.set_page_config(page_title="Manual Audit Assistant", page_icon="📘", layout="wide")
     ensure_session_defaults()
 
-    st.title("Manual Audit Assistant")
-    st.write(
-        "PDF veya Word manuellerinizi yükleyin, İngilizce soruyu mikrofondan alın ve sadece ilgili prosedür bölümünü bulun."
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background:
+                radial-gradient(circle at top right, rgba(14, 116, 144, 0.22), transparent 28%),
+                radial-gradient(circle at left top, rgba(30, 64, 175, 0.16), transparent 24%),
+                linear-gradient(180deg, #08111f 0%, #0e1726 100%);
+        }
+        .hero-box {
+            padding: 28px 32px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(12, 74, 110, 0.90));
+            border: 1px solid rgba(125, 211, 252, 0.18);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+            margin-bottom: 18px;
+        }
+        .hero-kicker {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(125, 211, 252, 0.12);
+            color: #bae6fd;
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.05;
+            color: #f8fafc;
+            margin: 0 0 12px 0;
+        }
+        .hero-text {
+            font-size: 1.05rem;
+            color: #dbeafe;
+            max-width: 900px;
+            margin-bottom: 0;
+        }
+        .dedication-box {
+            margin-top: 18px;
+            padding: 18px 20px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.92), rgba(8, 47, 73, 0.90));
+            border: 1px solid rgba(186, 230, 253, 0.18);
+        }
+        .dedication-title {
+            font-size: 1.05rem;
+            color: #93c5fd;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+        .dedication-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #f8fafc;
+            margin: 0;
+        }
+        .info-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 18px 0 10px 0;
+        }
+        .info-card {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(125, 211, 252, 0.12);
+            border-radius: 16px;
+            padding: 14px 16px;
+        }
+        .info-label {
+            color: #93c5fd;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+        .info-value {
+            color: #f8fafc;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .section-card {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 20px;
+            padding: 18px 18px 10px 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+        }
+        @media (max-width: 900px) {
+            .hero-title { font-size: 2.1rem; }
+            .dedication-name { font-size: 1.6rem; }
+            .info-strip { grid-template-columns: 1fr; }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div class="hero-box">
+            <div class="hero-kicker">Audit Intelligence Workspace</div>
+            <div class="hero-title">Manual Audit Assistant</div>
+            <p class="hero-text">
+                PDF ve Word manuellerinizi yukleyin, Ingilizce denetci sorusunu mikrofondan alin
+                ve sadece ilgili prosedur bolumunu hizli, temiz ve kaynak bilgisiyle birlikte bulun.
+            </p>
+            <div class="dedication-box">
+                <div class="dedication-title">Ithafen</div>
+                <p class="dedication-name">Kaptan Onur Sonmez</p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div class="info-strip">
+            <div class="info-card">
+                <div class="info-label">Desteklenen Dosyalar</div>
+                <div class="info-value">PDF ve Word (.docx)</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Ses Girdisi</div>
+                <div class="info-value">Whisper ile Ingilizce transkript</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Cikti</div>
+                <div class="info-value">Sadece ilgili prosedur bolumu</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     with st.sidebar:
@@ -253,12 +387,12 @@ def main() -> None:
             "Whisper modeli",
             options=["base.en", "small.en", "medium.en"],
             index=0,
-            help="`base.en` CPU için daha hafif, `medium.en` daha doğru ama daha yavaş olabilir.",
+            help="base.en CPU icin daha hafif, medium.en daha dogru ama daha yavas olabilir.",
         )
-        st.caption("Whisper için sisteminizde `ffmpeg` kurulu olmalı.")
+        st.caption("Whisper icin sisteminizde ffmpeg kurulu olmali.")
 
     uploaded_files = st.file_uploader(
-        "PDF veya Word manuellerini yükleyin",
+        "PDF veya Word manuellerini yukleyin",
         type=["pdf", "docx"],
         accept_multiple_files=True,
     )
@@ -269,42 +403,45 @@ def main() -> None:
             try:
                 with st.spinner("Dosyalar indeksleniyor..."):
                     index_manuals(uploaded_files)
-                st.success(f"{len(uploaded_files)} dosya işlendi, arama için hazır.")
+                st.success(f"{len(uploaded_files)} dosya islendi, arama icin hazir.")
             except Exception as exc:
                 st.session_state.manual_fingerprint = None
                 st.session_state.chunks = []
                 st.session_state.vectorizer = None
                 st.session_state.matrix = None
-                st.error(f"Dosyalar işlenemedi: {exc}")
+                st.error(f"Dosyalar islenemedi: {exc}")
     else:
-        st.info("Devam etmek için en az bir PDF veya Word dosyası yükleyin.")
+        st.info("Devam etmek icin en az bir PDF veya Word dosyasi yukleyin.")
 
     col1, col2 = st.columns([1, 1])
 
     with col1:
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
         st.subheader("1. Mikrofonu dinle")
         audio_file = st.audio_input(
-            "İngilizce soruyu kaydedin",
+            "Ingilizce soruyu kaydedin",
             sample_rate=16000,
-            help="Tarayıcı mikrofon izni isteyecektir. Kayıt WAV olarak alınır.",
+            help="Tarayici mikrofon izni isteyecektir. Kayit WAV olarak alinir.",
         )
 
         if audio_file is not None:
             st.audio(audio_file)
-            if st.button("Konuşmayı metne çevir", type="primary", use_container_width=True):
-                with st.spinner("Whisper ile metne çevriliyor..."):
+            if st.button("Konusmayi metne cevir", type="primary", use_container_width=True):
+                with st.spinner("Whisper ile metne cevriliyor..."):
                     transcript = transcribe_audio_bytes(audio_file.getvalue(), whisper_model_name)
                 st.session_state.transcript = transcript
 
         question_text = st.text_area(
-            "2. Denetçi sorusu",
+            "2. Denetci sorusu",
             value=st.session_state.transcript,
             height=180,
-            placeholder="Örn: What is the inspection procedure before restarting the pump?",
+            placeholder="Orn: What is the inspection procedure before restarting the pump?",
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
-        st.subheader("3. İlgili prosedürü bul")
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+        st.subheader("3. Ilgili proseduru bul")
         can_search = all(
             [
                 st.session_state.vectorizer is not None,
@@ -323,21 +460,21 @@ def main() -> None:
             )
 
             if not results:
-                st.warning("İlgili bir prosedür bölümü bulunamadı. Soruyu daha spesifik yazmayı deneyin.")
+                st.warning("Ilgili bir prosedur bolumu bulunamadi. Soruyu daha spesifik yazmayi deneyin.")
             else:
                 best_chunk, best_score = results[0]
-                st.success("En ilgili prosedür bölümü bulundu.")
-                st.markdown("### En ilgili prosedür")
+                st.success("En ilgili prosedur bolumu bulundu.")
+                st.markdown("### En ilgili prosedur")
                 st.caption(
-                    f"Kaynak: {best_chunk.source_name} | Sayfa: {best_chunk.page_number} | Bölüm: {best_chunk.heading} | Benzerlik: {best_score:.3f}"
+                    f"Kaynak: {best_chunk.source_name} | Sayfa: {best_chunk.page_number} | Bolum: {best_chunk.heading} | Benzerlik: {best_score:.3f}"
                 )
                 st.markdown(best_chunk.text)
 
                 if len(results) > 1:
-                    with st.expander("Yakın diğer eşleşmeler"):
+                    with st.expander("Yakin diger eslesmeler"):
                         for chunk, score in results[1:]:
                             st.markdown(
-                                f"**{chunk.source_name}** | Sayfa **{chunk.page_number}** | Bölüm **{chunk.heading}** | Skor **{score:.3f}**"
+                                f"**{chunk.source_name}** | Sayfa **{chunk.page_number}** | Bolum **{chunk.heading}** | Skor **{score:.3f}**"
                             )
                             st.write(chunk.text)
                             st.divider()
@@ -345,12 +482,12 @@ def main() -> None:
         if st.session_state.transcript:
             st.markdown("### Son transkript")
             st.write(st.session_state.transcript)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.divider()
     st.caption(
-        "Not: Bu sürüm PDF ve Word metnini çıkarıp TF-IDF ile en ilgili prosedür bölümünü getirir. Görsel tabanlı PDF'lerde OCR gerekebilir."
+        "Not: Bu surum PDF ve Word metnini cikarip TF-IDF ile en ilgili prosedur bolumunu getirir. Gorsel tabanli PDF'lerde OCR gerekebilir."
     )
-    st.caption("Kaptan Onur Sönmez'e ithafen.")
 
 
 if __name__ == "__main__":
