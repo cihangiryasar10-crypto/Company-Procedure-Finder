@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import os
 import socket
-import subprocess
 import sys
-import time
+import threading
 import webbrowser
 from pathlib import Path
+
+from streamlit.web import cli as stcli
 
 
 def find_free_port(start: int = 8501, end: int = 8600) -> int:
@@ -19,15 +20,6 @@ def find_free_port(start: int = 8501, end: int = 8600) -> int:
             except OSError:
                 continue
     raise RuntimeError("Uygun boş port bulunamadı.")
-
-
-def streamlit_executable() -> str:
-    if getattr(sys, "frozen", False):
-        base_dir = Path(sys._MEIPASS)
-        candidate = base_dir / "streamlit.exe"
-        if candidate.exists():
-            return str(candidate)
-    return sys.executable
 
 
 def app_path() -> str:
@@ -44,25 +36,19 @@ def main() -> None:
     env = os.environ.copy()
     env["STREAMLIT_SERVER_HEADLESS"] = "true"
     env["STREAMLIT_BROWSER_GATHER_USAGE_STATS"] = "false"
+    os.environ.update(env)
 
-    command = [
-        streamlit_executable(),
-        "-m",
+    threading.Timer(2.0, lambda: webbrowser.open(url)).start()
+
+    sys.argv = [
         "streamlit",
         "run",
         app_path(),
         "--server.address=127.0.0.1",
         f"--server.port={port}",
+        "--browser.gatherUsageStats=false",
     ]
-
-    process = subprocess.Popen(command, env=env)
-    time.sleep(3)
-    webbrowser.open(url)
-
-    try:
-        process.wait()
-    except KeyboardInterrupt:
-        process.terminate()
+    sys.exit(stcli.main())
 
 
 if __name__ == "__main__":
