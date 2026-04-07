@@ -25,8 +25,18 @@ jobs:
       - name: Build EXE
         run: .\build_exe.bat
 
+      - name: Show dist folder
+        shell: powershell
+        run: |
+          if (Test-Path dist) {
+            Get-ChildItem -Recurse dist
+          } else {
+            Write-Error "dist klasoru yok"
+          }
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ManualAuditAssistant-windows
           path: dist/ManualAuditAssistant
+          if-no-files-found: error
