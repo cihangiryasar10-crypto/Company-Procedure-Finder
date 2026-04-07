@@ -1,5 +1,6 @@
 streamlit==1.55.0
 openai-whisper
 pypdf
+python-docx
 scikit-learn
 torch
